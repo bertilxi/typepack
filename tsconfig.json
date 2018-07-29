@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es2015"],
+    "rootDir": "src",
+    "outDir": "dist",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "declaration": true,
+    "declarationDir": "",
+    "sourceMap": true,
+    "inlineSources": true,
+    "noImplicitAny": false,
+    "types": ["node", "mocha"]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
