@@ -48,7 +48,9 @@ const configuration = (
           {
             loader: require.resolve("ts-loader"),
             options: {
-              context: rootPath
+              context: rootPath,
+              transpileOnly: true,
+              experimentalWatchApi: true
             }
           }
         ],
@@ -156,10 +158,12 @@ const configuration = (
   const commonConfig = {
     context,
     mode: isDev ? "development" : "production",
-    devtool: isDev ? "inline-source-map" : "source-map",
+    devtool: isDev ? "cheap-module-eval-source-map" : "source-map",
     optimization: isDev
       ? {}
       : {
+          removeAvailableModules: false,
+          removeEmptyChunks: false,
           minimizer: [
             new UglifyJsPlugin({
               cache: true,
@@ -220,7 +224,8 @@ const configuration = (
       filename: isDev ? "js/[name].js" : "js/[name].[chunkhash].js",
       chunkFilename: isDev ? "js/[id].js" : "js/[id].[chunkhash].js",
       path: paths.outputFolder,
-      libraryTarget: "umd"
+      libraryTarget: "umd",
+      pathinfo: false
     }
   };
 
