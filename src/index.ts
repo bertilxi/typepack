@@ -3,20 +3,15 @@ import { join, resolve } from "path";
 import chalk from "chalk";
 import configuration from "./config";
 import * as webpack from "webpack";
-import * as webpackDevServer from "webpack-dev-server";
-import * as Mocha from "mocha";
-import * as glob from "glob";
+import * as WebpackDevServer from "webpack-dev-server";
 import { once } from "ramda";
 import * as nodemon from "nodemon";
+import { isBackEndConfig, requireFx } from "./utils";
+import { init } from "./template";
 
 const [, , ...args] = process.argv;
 const log = console.log;
 const rootPath = resolve(process.cwd());
-
-declare const __webpack_require__;
-declare const __non_webpack_require__;
-const requireFx =
-  typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
 
 const userConfigPath = join(rootPath, "./typepack.ts");
 let userConfig: any = {};
@@ -26,6 +21,7 @@ if (existsSync(userConfigPath)) {
 }
 
 const Commands = {
+  init: "init",
   dev: "dev",
   build_dev: "build:dev",
   build_analyze: "build:analyze",
@@ -46,14 +42,16 @@ const startWebpack = env => {
   });
 };
 
-const isBackEndConfig = config =>
-  config.mode && (config.mode === "server" || config.mode === "cli");
-
 switch (args[0]) {
+  case Commands.init:
+    const name = args[1];
+    const mode = args[2];
+    init(name, mode);
+    break;
   case Commands.dev:
     const config = configuration("development", userConfig, isDebugging());
     config.mode = "development";
-    if (isBackEndConfig(userConfig)) {
+    if (isBackEndConfig(userConfig.mode)) {
       webpack(config).watch(
         {},
         once((error, stats) => {
@@ -77,10 +75,10 @@ switch (args[0]) {
         host: "localhost",
         historyApiFallback: true
       };
-      const server = new webpackDevServer(webpack(config), options);
+      const server = new WebpackDevServer(webpack(config), options);
       server.listen(8080, error => {
         if (error) {
-          log(chalk.red(error));
+          log(chalk.red(error.message));
         }
         log(chalk.green("WebpackDevServer listening at http://localhost:8080"));
       });
@@ -97,17 +95,6 @@ switch (args[0]) {
     startWebpack("production");
     break;
   case Commands.test:
-    process.env.__TS_PROJECT_PATH__ = rootPath;
-    require("ts-mocha");
-    const testPath =
-      (userConfig && userConfig.test && userConfig.test.path) ||
-      "./test/unit/**/*.ts";
-    const mocha = new Mocha({
-      timeout: 15000
-    });
-    const testFiles = glob.sync(join(rootPath, testPath));
-    testFiles.forEach(file => mocha.addFile(file));
-    mocha.run(failures => process.on("exit", () => process.exit(failures)));
     break;
   default:
     log(chalk.red(`Unknown Command : ${args}`));

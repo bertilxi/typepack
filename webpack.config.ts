@@ -2,6 +2,8 @@ import { resolve } from "path";
 import * as webpack from "webpack";
 import * as nodeExternals from "webpack-node-externals";
 import * as CleanWebpackPlugin from "clean-webpack-plugin";
+import * as FriendlyErrorsWebpackPlugin from "friendly-errors-webpack-plugin";
+import * as WebpackBar from "webpackbar";
 
 const config = (): webpack.Configuration => {
   const isDev = process.env.NODE_ENV !== "production";
@@ -27,6 +29,8 @@ const config = (): webpack.Configuration => {
     },
     plugins: [
       new CleanWebpackPlugin(["dist"]),
+      new FriendlyErrorsWebpackPlugin(),
+      new WebpackBar(),
       new webpack.BannerPlugin({
         banner: "#!/usr/bin/env node",
         raw: true

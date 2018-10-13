@@ -8,11 +8,10 @@
     "moduleResolution": "node",
     "strict": true,
     "declaration": true,
-    "declarationDir": "",
     "sourceMap": true,
     "inlineSources": true,
     "noImplicitAny": false,
-    "types": ["node", "mocha"]
+    "types": ["node"]
   },
   "include": [
     "src/**/*"
