@@ -34,7 +34,8 @@ export interface IUserConfig {
 const configuration = (
   env = "development",
   userConfig,
-  isDebugging = false
+  isDebugging = false,
+  port?
 ): Partial<webpack.Configuration> => {
   const isDev = env !== "production";
   const context = rootPath;
@@ -232,7 +233,7 @@ const configuration = (
   const webAppConfig = webpackMerge(commonConfig, {
     entry: isDev
       ? {
-          main: makeDevEntry(paths.entry.main)
+          main: makeDevEntry(paths.entry.main, port)
         }
       : paths.entry,
     module: {

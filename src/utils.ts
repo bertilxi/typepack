@@ -20,18 +20,22 @@ export const getPaths = (userPaths = {}) => ({
 
 export const resolveHtmlTemplate = () => {
   const srcHtmlPath = resolve(rootPath, "./src/index.html");
+  const assetsHtmlPath = resolve(rootPath, "./assets/index.html");
   const rootHtmlPath = resolve(rootPath, "./index.html");
   if (existsSync(srcHtmlPath)) {
     return srcHtmlPath;
+  }
+  if (existsSync(assetsHtmlPath)) {
+    return assetsHtmlPath;
   }
   if (existsSync(rootHtmlPath)) {
     return rootHtmlPath;
   }
 };
 
-export const makeDevEntry = entry => {
+export const makeDevEntry = (entry, port) => {
   return [
-    require.resolve("webpack-dev-server/client") + "?http://localhost:9001",
+    require.resolve("webpack-dev-server/client") + `?http://localhost:${port}`,
     require.resolve("webpack/hot/dev-server"),
     entry
   ];

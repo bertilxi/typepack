@@ -11,7 +11,7 @@ const log = console.log;
 
 module.exports = opts => {
   const userConfig = getUserConfig();
-  const config = configuration("development", userConfig, opts.d);
+  const config = configuration("development", userConfig, opts.d, opts.port);
   config.mode = "development";
   if (isBackEndConfig(userConfig.mode)) {
     webpack(config).watch(
@@ -19,30 +19,41 @@ module.exports = opts => {
       once(error => {
         if (error) {
           console.error(error);
+          process.exit(1);
           return;
         }
         nodemon({
           script: join(rootPath, "./dist/index.js"),
-          watch: join(rootPath, "./dist/**/*.js")
+          watch: join(rootPath, "./dist/**/*")
         }).on("quit", process.exit);
       })
     );
   } else {
     log(chalk.green("WebpackDevServer Launched"));
-    const options = {
-      contentBase: join(rootPath, "./dist"),
-      hot: true,
+
+    const port = opts.port;
+    const open = opts.open;
+    const hostname = "0.0.0.0";
+
+    const server = new WebpackDevServer(webpack(config), {
+      contentBase: join(rootPath, "./assets"),
+      open,
+      overlay: true,
       inline: true,
-      stats: { colors: true },
-      host: "localhost",
-      historyApiFallback: true
-    };
-    const server = new WebpackDevServer(webpack(config), options);
-    server.listen(8080, error => {
+      host: hostname,
+      quiet: true,
+      port: opts.port,
+      hot: true,
+      historyApiFallback: true,
+      proxy: userConfig && userConfig.devServer && userConfig.devServer.proxy
+    });
+
+    server.listen(port, hostname, error => {
       if (error) {
+        server.close();
         log(chalk.red(error.message));
+        process.exit(1);
       }
-      log(chalk.green("WebpackDevServer listening at http://localhost:8080"));
     });
   }
 };
