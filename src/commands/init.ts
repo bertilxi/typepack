@@ -26,9 +26,9 @@ const copyTemplate = async (name: string, dirname: string, mode?: string) => {
     version: "0.0.1",
     private: true
   };
-  const paths = await globby(join(__dirname, "../templates/base/**/*"));
+  const paths = await globby(join(__dirname, "../../templates/base/**/*"));
   const files = paths.map((path: string) => {
-    const splittedName = path.split(join(__dirname, "../templates/base/"));
+    const splittedName = path.split(join(__dirname, "../../templates/base/"));
     return {
       name: splittedName[splittedName.length - 1],
       content: readFileSync(path, "utf8")

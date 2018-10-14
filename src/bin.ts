@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import * as sade from "sade";
-const { version } = require("./package");
+const { version } = require("../package");
 
 const commands = {
   init: () => require("./commands/init"),
