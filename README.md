@@ -2,6 +2,16 @@
 
 Zero config Typescript Bundling
 
+## Installation
+
+```sh
+npm i -g typepack
+# or
+npm i --save-dev typepack
+# or
+yarn add -D typepack
+```
+
 ## Use
 
 ### Dev
@@ -12,20 +22,18 @@ typepack dev
 tp dev
 ```
 
-### Production Build
+### Build
 
 ```sh
 typepack build
 # or
 tp build
-```
-
-### Development Build
-
-```sh
-typepack build:dev
-# or
-tp build:dev
+# Dev build
+tp build --dev
+# Measure build time
+tp build --smp
+# Analyze bundle
+tp build --analyze
 ```
 
 ### Test
@@ -41,7 +49,7 @@ tp test
 All customization is made in the `typepack.ts` file.
 For a client/webapp is not needed.
 
-### For a BackEnd/Server use
+### For BackEnd/Server
 
 ```Typescript
 module.exports = {
@@ -49,7 +57,7 @@ module.exports = {
 };
 ```
 
-### For a CLI use
+### For CLI
 
 ```Typescript
 module.exports = {
