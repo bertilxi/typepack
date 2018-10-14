@@ -29,9 +29,9 @@ cli
 
   .command("build")
   .describe("Start production build")
-  .option("--dev", "Run build in development mode")
-  .option("--analyze", "Launch bundle analyzer")
-  .option("--smp", "Measure build times")
+  .option("--dev", "Run build in development mode", false)
+  .option("--analyze", "Launch bundle analyzer", false)
+  .option("--smp", "Measure build times", false)
   .action(commands.build())
 
   .command("test")

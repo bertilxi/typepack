@@ -11,9 +11,7 @@
     "sourceMap": true,
     "inlineSources": true,
     "noImplicitAny": false,
-    "types": ["node"]
+    "types": ["node", "jest"]
   },
-  "include": [
-    "src/**/*"
-  ]
+  "include": ["src/**/*"]
 }

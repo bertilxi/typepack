@@ -6,6 +6,7 @@ import chalk from "chalk";
 import * as WebpackDevServer from "webpack-dev-server";
 import { once } from "ramda";
 import * as nodemon from "nodemon";
+import * as opn from "opn";
 
 const log = console.log;
 
@@ -29,15 +30,14 @@ module.exports = opts => {
       })
     );
   } else {
-    log(chalk.green("WebpackDevServer Launched"));
-
     const port = opts.port;
     const open = opts.open;
     const hostname = "0.0.0.0";
 
-    const server = new WebpackDevServer(webpack(config), {
+    const options = {
       contentBase: join(rootPath, "./assets"),
       open,
+      openPage: "",
       overlay: true,
       inline: true,
       host: hostname,
@@ -46,13 +46,20 @@ module.exports = opts => {
       hot: true,
       historyApiFallback: true,
       proxy: userConfig && userConfig.devServer && userConfig.devServer.proxy
-    });
+    };
+    config.devServer = options;
+
+    const server = new WebpackDevServer(webpack(config), options);
 
     server.listen(port, hostname, error => {
       if (error) {
         server.close();
         log(chalk.red(error.message));
         process.exit(1);
+      }
+      if (open) {
+        const url = `http://localhost:${port}`;
+        opn(url);
       }
     });
   }
