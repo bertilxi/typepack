@@ -13,12 +13,13 @@ import * as webpackMerge from "webpack-merge";
 import * as nodeExternals from "webpack-node-externals";
 import * as WebpackBar from "webpackbar";
 import * as TerserPlugin from "terser-webpack-plugin";
+import * as ErrorOverlayPlugin from "error-overlay-webpack-plugin";
 import {
   getFile,
   getPaths,
   isBackEndConfig,
   isCliConfig,
-  makeDevEntry,
+  makeDevEntries,
   resolveContext,
   resolveHtmlTemplate,
   resolveLocal,
@@ -148,7 +149,8 @@ const configuration = (
           to: paths.outputFolder,
           ignore: [".*"]
         }
-      ])
+      ]),
+      errorOverlay: new ErrorOverlayPlugin()
     }
   };
   const { rules, plugins, mode }: IUserConfig = {
@@ -214,6 +216,7 @@ const configuration = (
     },
     plugins: [
       plugins.friendlyErrors,
+      plugins.errorOverlay,
       plugins.webpackbar,
       plugins.clean,
       plugins.define,
@@ -231,11 +234,7 @@ const configuration = (
   };
 
   const webAppConfig = webpackMerge(commonConfig, {
-    entry: isDev
-      ? {
-          main: makeDevEntry(paths.entry.main, port)
-        }
-      : paths.entry,
+    entry: isDev ? makeDevEntries(paths.entry, port) : paths.entry,
     module: {
       rules: [rules.html, rules.scss, rules.images, rules.fonts, rules.media]
     },
@@ -264,6 +263,10 @@ const configuration = (
 
   if (isCliConfig(mode)) {
     resultConfig.plugins!.push(plugins.banner);
+  }
+
+  if (typeof userConfig.config === "function") {
+    userConfig.config(resultConfig);
   }
 
   if (isDebugging) {

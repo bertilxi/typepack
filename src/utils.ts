@@ -41,6 +41,13 @@ export const makeDevEntry = (entry, port) => {
   ];
 };
 
+export const makeDevEntries = (entries, port) => {
+  Object.keys(entries).forEach(entryKey => {
+    const entry = entries[entryKey];
+    entries[entryKey] = makeDevEntry(entry, port);
+  });
+};
+
 export const isBackEndConfig = mode =>
   mode && (mode === "server" || mode === "cli");
 
