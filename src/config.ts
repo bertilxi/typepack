@@ -3,7 +3,6 @@ import * as OfflinePlugin from "offline-plugin";
 import * as CopyWebpackPlugin from "copy-webpack-plugin";
 import * as OptimizeCssAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import * as SpeedMeasurePlugin from "speed-measure-webpack-plugin";
-import * as UglifyJsPlugin from "uglifyjs-webpack-plugin";
 import * as CleanWebpackPlugin from "clean-webpack-plugin";
 import * as HtmlWebpackPlugin from "html-webpack-plugin";
 import * as MiniCssExtractPlugin from "mini-css-extract-plugin";
@@ -13,6 +12,7 @@ import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
 import * as webpackMerge from "webpack-merge";
 import * as nodeExternals from "webpack-node-externals";
 import * as WebpackBar from "webpackbar";
+import * as TerserPlugin from "terser-webpack-plugin";
 import {
   getFile,
   getPaths,
@@ -165,7 +165,7 @@ const configuration = (
           removeAvailableModules: false,
           removeEmptyChunks: false,
           minimizer: [
-            new UglifyJsPlugin({
+            new TerserPlugin({
               cache: true,
               parallel: true,
               sourceMap: true

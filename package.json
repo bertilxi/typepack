@@ -1,16 +1,16 @@
 {
   "name": "typepack",
   "version": "0.0.36",
-  "main": "./dist/index.js",
+  "main": "./dist/bin.js",
   "license": "MIT",
   "bin": {
-    "tp": "./dist/index.js",
-    "typepack": "./dist/index.js"
+    "tp": "./dist/bin.js",
+    "typepack": "./dist/bin.js"
   },
   "scripts": {
     "dev": "webpack -w",
-    "build": "cross-env NODE_ENV=development webpack",
-    "build:prod": "cross-env NODE_ENV=production webpack -p"
+    "prebuild": "rimraf ./dist",
+    "build": "tsc"
   },
   "dependencies": {
     "@babel/core": "^7.1.2",
@@ -22,7 +22,6 @@
     "chalk": "^2.4.1",
     "clean-webpack-plugin": "^0.1.19",
     "copy-webpack-plugin": "^4.5.3",
-    "cross-env": "^5.2.0",
     "css-loader": "^1.0.0",
     "cssnano": "^4.1.4",
     "file-loader": "^2.0.0",
@@ -38,9 +37,11 @@
     "postcss-loader": "^3.0.0",
     "ramda": "^0.25.0",
     "rimraf": "^2.6.2",
+    "sade": "^1.4.1",
     "sass-loader": "^7.1.0",
     "speed-measure-webpack-plugin": "^1.2.3",
     "style-loader": "^0.23.1",
+    "terser-webpack-plugin": "^1.1.0",
     "ts-jest": "^23.10.4",
     "ts-loader": "^5.2.1",
     "ts-node": "^7.0.1",

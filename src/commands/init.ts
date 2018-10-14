@@ -1,4 +1,4 @@
-import { rootPath } from "./utils";
+import { rootPath } from "../utils";
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import * as globby from "globby";
@@ -21,16 +21,19 @@ const writeFile = (fullpath: string, content) => {
 };
 
 const copyTemplate = async (name: string, dirname: string, mode?: string) => {
-  const pkg = require("./pkg.json");
-  const paths = await globby(join(rootPath, "./templates/base/**/*"));
+  const pkg = {
+    name,
+    version: "0.0.1",
+    private: true
+  };
+  const paths = await globby(join(__dirname, "../templates/base/**/*"));
   const files = paths.map((path: string) => {
-    const splittedName = path.split(join(rootPath, "./templates/base/"));
+    const splittedName = path.split(join(__dirname, "../templates/base/"));
     return {
       name: splittedName[splittedName.length - 1],
       content: readFileSync(path, "utf8")
     };
   });
-  pkg.name = name;
   rimraf.sync(dirname);
   mkdirp.sync(dirname);
 
@@ -66,7 +69,7 @@ const installPackages = (dirname: string) => {
   }
 };
 
-export const init = async (name: string, mode?: string) => {
+module.exports = async (name: string, mode?: string) => {
   const dirname = join(rootPath, name);
   await copyTemplate(name, dirname, mode);
   installPackages(dirname);

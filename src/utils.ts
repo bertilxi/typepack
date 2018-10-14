@@ -56,3 +56,11 @@ export const getFile = relativePath => {
     return requireFx(filepath);
   }
 };
+
+export const getUserConfig = () => {
+  const userConfigPath = join(rootPath, "./typepack.ts");
+  if (existsSync(userConfigPath)) {
+    return requireFx(userConfigPath);
+  }
+  return {};
+};
