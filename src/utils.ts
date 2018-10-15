@@ -13,7 +13,6 @@ export const getPaths = (userPaths = {}) => ({
   entry: {
     main: join(rootPath, "./src/index")
   },
-  htmlTemplate: join(rootPath, "./src/index.html"),
   outputFolder: join(rootPath, "./dist"),
   ...userPaths
 });
