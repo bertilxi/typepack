@@ -52,6 +52,7 @@ const installPackages = (dirname: string) => {
   const dependencies = ["@babel/runtime"].join(" ");
   const devDependencies = [
     "typepack",
+    "@babel/core",
     "@babel/preset-env",
     "@babel/plugin-transform-runtime"
   ].join(" ");

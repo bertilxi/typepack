@@ -153,7 +153,7 @@ const configuration = (
       errorOverlay: new ErrorOverlayPlugin()
     }
   };
-  const { rules, plugins, mode }: IUserConfig = {
+  const { rules, plugins }: IUserConfig = {
     ...allConfigs,
     ...userConfig
   };
@@ -162,6 +162,10 @@ const configuration = (
     context,
     mode: isDev ? "development" : "production",
     devtool: isDev ? "cheap-module-eval-source-map" : "source-map",
+    entry:
+      isDev && !isBackEndConfig(userConfig.mode)
+        ? makeDevEntries(paths.entry, port)
+        : paths.entry,
     optimization: isDev
       ? {}
       : {
@@ -216,7 +220,6 @@ const configuration = (
     },
     plugins: [
       plugins.friendlyErrors,
-      plugins.errorOverlay,
       plugins.webpackbar,
       plugins.clean,
       plugins.define,
@@ -234,20 +237,20 @@ const configuration = (
   };
 
   const webAppConfig = webpackMerge(commonConfig, {
-    entry: isDev ? makeDevEntries(paths.entry, port) : paths.entry,
     module: {
       rules: [rules.html, rules.scss, rules.images, rules.fonts, rules.media]
     },
     plugins: [
       plugins.html,
-      ...(isDev ? [plugins.hmr] : [plugins.miniCssExtract])
+      ...(isDev
+        ? [plugins.hmr, plugins.errorOverlay]
+        : [plugins.miniCssExtract])
     ]
   });
 
   const backEndConfig = webpackMerge(commonConfig, {
     target: "node",
     externals: [nodeExternals()],
-    entry: paths.entry,
     output: {
       filename: "index.js",
       path: resolve("./dist"),
@@ -257,11 +260,11 @@ const configuration = (
 
   let resultConfig: webpack.Configuration = webAppConfig;
 
-  if (isBackEndConfig(mode)) {
+  if (isBackEndConfig(userConfig.mode)) {
     resultConfig = backEndConfig;
   }
 
-  if (isCliConfig(mode)) {
+  if (isCliConfig(userConfig.mode)) {
     resultConfig.plugins!.push(plugins.banner);
   }
 
