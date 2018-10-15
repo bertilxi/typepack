@@ -1,6 +1,6 @@
 {
   "name": "typepack",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "./dist/bin.js",
   "license": "MIT",
   "bin": {

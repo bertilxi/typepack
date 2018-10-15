@@ -45,6 +45,7 @@ export const makeDevEntries = (entries, port) => {
     const entry = entries[entryKey];
     entries[entryKey] = makeDevEntry(entry, port);
   });
+  return entries;
 };
 
 export const isBackEndConfig = mode =>
