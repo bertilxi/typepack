@@ -1,3 +1,4 @@
+![TypePack](logo.png?raw=true "TypePack")
 # TypePack
 
 Zero config Typescript Bundling
