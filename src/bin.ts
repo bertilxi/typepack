@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+require("ts-node/register/transpile-only");
 import * as sade from "sade";
 const { version } = require("../package");
 
@@ -24,7 +25,6 @@ cli
   .describe("Start development server")
   .option("--open", "Should the app be opened in the browser or not", true)
   .option("-p, --port", "A port number on which to start the application", 8080)
-
   .action(commands.dev())
 
   .command("build")
