@@ -19,7 +19,7 @@ module.exports = opts => {
       {},
       once(error => {
         if (error) {
-          console.error(error);
+          console.log(chalk.red(error));
           process.exit(1);
           return;
         }

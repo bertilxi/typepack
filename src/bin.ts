@@ -19,6 +19,7 @@ cli
   .command("init [name]")
   .describe("Initialize a new project")
   .option("-m, --mode", "The mode of the Typepack build", "web")
+  .option("--force, -f", "Force project dir creation", false)
   .action(commands.init())
 
   .command("dev")

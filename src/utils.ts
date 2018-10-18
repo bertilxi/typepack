@@ -48,10 +48,7 @@ export const makeDevEntries = (entries, port) => {
   return entries;
 };
 
-export const isBackEndConfig = mode =>
-  mode && (mode === "server" || mode === "cli");
-
-export const isCliConfig = mode => mode && mode === "cli";
+export const isBackEndConfig = mode => mode === "node";
 
 export const resolveLocal = (...args) => {
   return join(__dirname, "../../", ...args);

@@ -1,10 +1,11 @@
 import { rootPath } from "../utils";
-import { readFileSync, writeFileSync } from "fs";
+import { readFileSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 import * as globby from "globby";
 import * as mkdirp from "mkdirp";
 import * as rimraf from "rimraf";
 import * as sh from "shelljs";
+import chalk from "chalk";
 
 const writeFile = (fullpath: string, content) => {
   const sections = fullpath.split("/");
@@ -14,29 +15,54 @@ const writeFile = (fullpath: string, content) => {
   writeFileSync(fullpath, content);
 };
 
-const copyTemplate = async (name: string, dirname: string, { mode, d }) => {
+const copyTemplate = async (
+  name: string,
+  dirname: string,
+  { mode, d, force }
+) => {
   const pkg = {
     name,
     version: "0.0.1",
     private: true
   };
-  const paths = await globby(join(__dirname, `../../templates/${mode}/**/*`));
+  const paths: string[] = await globby(
+    join(__dirname, `../../templates/${mode}/**/*`)
+  );
   const files = paths.map((path: string) => {
     const splittedName = path.split(
       join(__dirname, `../../templates/${mode}/`)
     );
     return {
       name: splittedName[splittedName.length - 1],
-      content: readFileSync(path, "utf8")
+      content: readFileSync(path)
     };
   });
-  rimraf.sync(dirname);
-  mkdirp.sync(dirname);
 
   if (d) {
     console.log(paths);
     console.log(files);
   }
+
+  if (!paths || !paths.length) {
+    console.log(chalk.red("Template not exists."));
+    process.exit(1);
+    return;
+  }
+
+  if (force) {
+    rimraf.sync(dirname);
+  }
+
+  if (existsSync(dirname)) {
+    console.log(chalk.red("Dirname already exists."));
+    console.log(
+      `use ${chalk.blue("--force")} to delete it and create a new one.`
+    );
+    process.exit(1);
+    return;
+  }
+
+  mkdirp.sync(dirname);
 
   files.forEach(file => {
     writeFile(join(rootPath, name, file.name), file.content);

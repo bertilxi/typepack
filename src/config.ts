@@ -1,5 +1,4 @@
 import * as FriendlyErrorsWebpackPlugin from "friendly-errors-webpack-plugin";
-import * as OfflinePlugin from "offline-plugin";
 import * as CopyWebpackPlugin from "copy-webpack-plugin";
 import * as OptimizeCssAssetsPlugin from "optimize-css-assets-webpack-plugin";
 import * as SpeedMeasurePlugin from "speed-measure-webpack-plugin";
@@ -13,12 +12,10 @@ import * as webpackMerge from "webpack-merge";
 import * as nodeExternals from "webpack-node-externals";
 import * as WebpackBar from "webpackbar";
 import * as TerserPlugin from "terser-webpack-plugin";
-import * as ErrorOverlayPlugin from "error-overlay-webpack-plugin";
 import {
   getFile,
   getPaths,
   isBackEndConfig,
-  isCliConfig,
   makeDevEntries,
   resolveContext,
   resolveHtmlTemplate,
@@ -32,12 +29,16 @@ export interface IUserConfig {
   mode: string;
 }
 
+interface IConfig {
+  devServer: any;
+}
+
 const configuration = (
   env = "development",
   userConfig,
   isDebugging = false,
   port?
-): Partial<webpack.Configuration> => {
+): Partial<webpack.Configuration & IConfig> => {
   const isDev = env !== "production";
   const context = rootPath;
   const paths = getPaths(userConfig.paths);
@@ -114,7 +115,6 @@ const configuration = (
         filename: isDev ? "[name].css" : "css/[name].[contenthash].css",
         chunkFilename: isDev ? "[id].css" : "css/[id].[chunkhash].css"
       }),
-      offline: new OfflinePlugin(),
       friendlyErrors: new FriendlyErrorsWebpackPlugin(),
       define: new webpack.DefinePlugin({
         "process.env": isDev
@@ -139,18 +139,13 @@ const configuration = (
         name: "TypePack"
       }),
       analyze: new BundleAnalyzerPlugin(),
-      banner: new webpack.BannerPlugin({
-        banner: "#!/usr/bin/env node",
-        raw: true
-      }),
       copyStatic: new CopyWebpackPlugin([
         {
           from: join(rootPath, "static"),
           to: paths.outputFolder,
           ignore: [".*"]
         }
-      ]),
-      errorOverlay: new ErrorOverlayPlugin()
+      ])
     }
   };
   const { rules, plugins }: IUserConfig = {
@@ -223,8 +218,7 @@ const configuration = (
       plugins.webpackbar,
       plugins.clean,
       plugins.define,
-      ...(process.env.BUNDLE_ANALYZE ? [plugins.analyze] : []),
-      ...(process.env.OFFLINE_PLUGIN ? [plugins.offline] : [])
+      ...(process.env.BUNDLE_ANALYZE ? [plugins.analyze] : [])
     ],
     output: {
       publicPath: "/",
@@ -242,9 +236,7 @@ const configuration = (
     },
     plugins: [
       plugins.html,
-      ...(isDev
-        ? [plugins.hmr, plugins.errorOverlay]
-        : [plugins.miniCssExtract])
+      ...(isDev ? [plugins.hmr] : [plugins.miniCssExtract])
     ]
   });
 
@@ -262,10 +254,6 @@ const configuration = (
 
   if (isBackEndConfig(userConfig.mode)) {
     resultConfig = backEndConfig;
-  }
-
-  if (isCliConfig(userConfig.mode)) {
-    resultConfig.plugins!.push(plugins.banner);
   }
 
   if (typeof userConfig.config === "function") {

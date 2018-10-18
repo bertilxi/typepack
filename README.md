@@ -1,7 +1,8 @@
-![TypePack](logo.png?raw=true "TypePack")
-# TypePack
+#
 
-Zero config Typescript Bundling
+![TypePack](logo.png?raw=true "TypePack")
+
+Zero config Typescript Bundling.
 
 ## Installation
 
@@ -18,26 +19,22 @@ yarn add -D typepack
 ### Init
 
 ```sh
-typepack init [name] [--mode]
-# or
+tp init [name] [--mode]
+
 tp init awesome-app # --mode web
-tp init awesome-app --mode server
-tp init awesome-app --mode cli
+tp init awesome-app --mode node
 ```
 
 ### Dev
 
 ```sh
-typepack dev
-# or
 tp dev
 ```
 
 ### Build
 
 ```sh
-typepack build
-# or
+# Production build
 tp build
 # Dev build
 tp build --dev
@@ -50,28 +47,22 @@ tp build --analyze
 ### Test
 
 ```sh
-typepack test
-# or
 tp test
 ```
 
 ## Configurations
 
-All customization is made in the `typepack.ts` file.
-For a client/webapp is not needed.
+All customizations could be made in the `typepack.ts` file.
+For a webapp is not needed.
 
-### For BackEnd/Server
-
-```Typescript
-module.exports = {
-  mode: "server"
-};
-```
-
-### For CLI
+### For a node app
 
 ```Typescript
 module.exports = {
-  mode: "cli"
+  mode: "node"
 };
 ```
+
+## How it works
+
+Internally it uses `webpack` for the module bundling, `webpack-dev-server` or `nodemon` (depending on the environment) for development and `jest` for unit testing.
