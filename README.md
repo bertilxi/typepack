@@ -15,6 +15,16 @@ yarn add -D typepack
 
 ## Use
 
+### Init
+
+```sh
+typepack init [name] [--mode]
+# or
+tp init awesome-app # --mode web
+tp init awesome-app --mode server
+tp init awesome-app --mode cli
+```
+
 ### Dev
 
 ```sh
