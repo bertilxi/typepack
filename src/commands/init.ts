@@ -70,23 +70,34 @@ const copyTemplate = async (
   writeFile(join(rootPath, name, "package.json"), JSON.stringify(pkg, null, 2));
 };
 
-const installPackages = (dirname: string) => {
+const installPackages = (dirname: string, mode: string) => {
   const hasYarn = sh.which("yarn");
   const install = hasYarn ? "yarn add" : "npm install --save";
   const devInstall = hasYarn ? "yarn add -D" : "npm install --save-dev";
 
-  const dependencies = ["@babel/runtime"].join(" ");
+  const dependencies = ["@babel/runtime"];
   const devDependencies = [
     "typepack",
     "@babel/core",
     "@babel/preset-env",
     "@babel/plugin-transform-runtime"
-  ].join(" ");
+  ];
+
+  if (mode === "react") {
+    const reactDeps = ["react", "react-dom"];
+    const reactDevDeps = [
+      "@types/react",
+      "@types/react-dom",
+      "@babel/preset-react"
+    ];
+    dependencies.concat(reactDeps);
+    devDependencies.concat(reactDevDeps);
+  }
 
   sh.cd(dirname);
   if (
-    sh.exec(`${install} ${dependencies}`).code !== 0 ||
-    sh.exec(`${devInstall} ${devDependencies}`).code !== 0
+    sh.exec(`${install} ${dependencies.join(" ")}`).code !== 0 ||
+    sh.exec(`${devInstall} ${devDependencies.join(" ")}`).code !== 0
   ) {
     sh.echo("Error: failed to install needed modules");
     sh.exit(1);
@@ -96,5 +107,5 @@ const installPackages = (dirname: string) => {
 module.exports = async (name: string, opts) => {
   const dirname = join(rootPath, name);
   await copyTemplate(name, dirname, opts);
-  installPackages(dirname);
+  installPackages(dirname, opts.mode);
 };

@@ -86,7 +86,7 @@ const configuration = (
           },
           {
             loader: require.resolve("postcss-loader"),
-            options: { sourceMap: !isDev }
+            options: { sourceMap: !isDev, plugins: [require("autoprefixer")] }
           },
           {
             loader: require.resolve("sass-loader"),
