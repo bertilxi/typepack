@@ -23,7 +23,12 @@ const copyTemplate = async (
   const pkg = {
     name,
     version: "0.0.1",
-    private: true
+    private: true,
+    scripts: {
+      dev: "tp dev",
+      build: "tp build",
+      test: "tp test"
+    }
   };
   const paths: string[] = await globby(
     join(__dirname, `../../templates/${mode}/**/*`)
@@ -78,6 +83,8 @@ const installPackages = (dirname: string, mode: string) => {
   const dependencies = ["@babel/runtime"];
   const devDependencies = [
     "typepack",
+    "@types/node",
+    "@types/jest",
     "@babel/core",
     "@babel/preset-env",
     "@babel/plugin-transform-runtime"
@@ -85,13 +92,9 @@ const installPackages = (dirname: string, mode: string) => {
 
   if (mode === "react") {
     const reactDeps = ["react", "react-dom"];
-    const reactDevDeps = [
-      "@types/react",
-      "@types/react-dom",
-      "@babel/preset-react"
-    ];
-    dependencies.concat(reactDeps);
-    devDependencies.concat(reactDevDeps);
+    const reactDevDeps = ["@types/react", "@types/react-dom"];
+    dependencies.push(...reactDeps);
+    devDependencies.push(...reactDevDeps);
   }
 
   sh.cd(dirname);
