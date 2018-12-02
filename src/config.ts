@@ -49,6 +49,13 @@ const configuration = (
         test: /\.tsx?$/,
         use: [
           {
+            loader: require.resolve("babel-loader"),
+            options: {
+              cacheDirectory: true,
+              cacheCompression: false
+            }
+          },
+          {
             loader: require.resolve("ts-loader"),
             options: {
               context: rootPath,
@@ -64,7 +71,11 @@ const configuration = (
         test: /\.jsx?$/,
         use: [
           {
-            loader: require.resolve("babel-loader")
+            loader: require.resolve("babel-loader"),
+            options: {
+              cacheDirectory: true,
+              cacheCompression: false
+            }
           }
         ],
         include: paths.src,
@@ -174,6 +185,7 @@ const configuration = (
             }),
             new OptimizeCssAssetsPlugin({
               cssProcessor: require("cssnano"),
+              cssProcessorOptions: { safe: true, map: { inline: false } },
               cssProcessorPluginOptions: {
                 preset: [
                   "default",

@@ -92,7 +92,11 @@ const installPackages = (dirname: string, mode: string) => {
 
   if (mode === "react") {
     const reactDeps = ["react", "react-dom"];
-    const reactDevDeps = ["@types/react", "@types/react-dom"];
+    const reactDevDeps = [
+      "@types/react",
+      "@types/react-dom",
+      "@babel/preset-react"
+    ];
     dependencies.push(...reactDeps);
     devDependencies.push(...reactDevDeps);
   }
