@@ -1,5 +1,7 @@
 #
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/bertilxi/typepack.svg)](https://greenkeeper.io/)
+
 ![TypePack](logo.png?raw=true "TypePack")
 
 Create Typescript projects with minimal configuration.
