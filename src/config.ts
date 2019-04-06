@@ -23,13 +23,13 @@ import {
   rootPath
 } from "./utils";
 
-export interface IUserConfig {
+export interface UserConfig {
   rules;
   plugins;
   mode: string;
 }
 
-interface IConfig {
+interface Config {
   devServer: any;
 }
 
@@ -38,12 +38,12 @@ const configuration = (
   userConfig,
   isDebugging = false,
   port?
-): Partial<webpack.Configuration & IConfig> => {
+): Partial<webpack.Configuration & Config> => {
   const isDev = env !== "production";
   const context = rootPath;
   const paths = getPaths(userConfig.paths);
 
-  const allConfigs: Partial<IUserConfig> = {
+  const allConfigs: Partial<UserConfig> = {
     rules: {
       typescript: {
         test: /\.tsx?$/,
@@ -144,7 +144,7 @@ const configuration = (
               removeAttributeQuotes: true
             }
       }),
-      clean: new CleanWebpackPlugin(["dist"], { root: rootPath }),
+      clean: new CleanWebpackPlugin(),
       hmr: new webpack.HotModuleReplacementPlugin(),
       webpackbar: new WebpackBar({
         name: "TypePack"
@@ -159,7 +159,7 @@ const configuration = (
       ])
     }
   };
-  const { rules, plugins }: IUserConfig = {
+  const { rules, plugins }: UserConfig = {
     ...allConfigs,
     ...userConfig
   };
