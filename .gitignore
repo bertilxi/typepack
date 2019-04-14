@@ -1,6 +1,5 @@
 .DS_Store
 node_modules
-/dist
 /tests
 
 # local env files
@@ -22,3 +21,4 @@ package-lock.json
 *.njsproj
 *.sln
 *.sw*
+
