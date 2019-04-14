@@ -1,285 +1,64 @@
-import * as FriendlyErrorsWebpackPlugin from "friendly-errors-webpack-plugin";
-import * as CopyWebpackPlugin from "copy-webpack-plugin";
-import * as OptimizeCssAssetsPlugin from "optimize-css-assets-webpack-plugin";
-import * as SpeedMeasurePlugin from "speed-measure-webpack-plugin";
-import * as CleanWebpackPlugin from "clean-webpack-plugin";
-import * as HtmlWebpackPlugin from "html-webpack-plugin";
-import * as MiniCssExtractPlugin from "mini-css-extract-plugin";
-import { join, resolve } from "path";
-import * as webpack from "webpack";
-import { BundleAnalyzerPlugin } from "webpack-bundle-analyzer";
-import * as webpackMerge from "webpack-merge";
-import * as nodeExternals from "webpack-node-externals";
-import * as WebpackBar from "webpackbar";
-import * as TerserPlugin from "terser-webpack-plugin";
-import {
-  getFile,
-  getPaths,
-  isBackEndConfig,
-  makeDevEntries,
-  resolveContext,
-  resolveHtmlTemplate,
-  resolveLocal,
-  rootPath
-} from "./utils";
+import { Configuration } from "webpack";
+import { resolve, join } from "path";
+import { plugins } from "./plugins";
 
-export interface UserConfig {
-  rules;
-  plugins;
-  mode: string;
-}
-
-interface Config {
-  devServer: any;
-}
-
-const configuration = (
-  env = "development",
-  userConfig,
-  isDebugging = false,
-  port?
-): Partial<webpack.Configuration & Config> => {
-  const isDev = env !== "production";
-  const context = rootPath;
-  const paths = getPaths(userConfig.paths);
-
-  const allConfigs: Partial<UserConfig> = {
-    rules: {
-      typescript: {
-        test: /\.tsx?$/,
-        use: [
-          {
-            loader: require.resolve("babel-loader"),
-            options: {
-              cacheDirectory: true,
-              cacheCompression: false
-            }
-          },
-          {
-            loader: require.resolve("ts-loader"),
-            options: {
-              context: rootPath,
-              transpileOnly: true,
-              experimentalWatchApi: true
-            }
-          }
-        ],
-        include: paths.src,
-        exclude: /node_modules/
-      },
-      babel: {
-        test: /\.jsx?$/,
-        use: [
-          {
-            loader: require.resolve("babel-loader"),
-            options: {
-              cacheDirectory: true,
-              cacheCompression: false
-            }
-          }
-        ],
-        include: paths.src,
-        exclude: /node_modules/
-      },
-      html: {
-        test: /\.(html)$/,
-        use: { loader: require.resolve("html-loader") },
-        include: paths.src,
-        exclude: /node_modules/
-      },
-      scss: {
-        test: /\.(sa|sc|c)ss$/,
-        use: [
-          isDev ? require.resolve("style-loader") : MiniCssExtractPlugin.loader,
-          {
-            loader: require.resolve("css-loader"),
-            options: { sourceMap: !isDev, importLoaders: 1 }
-          },
-          {
-            loader: require.resolve("postcss-loader"),
-            options: { sourceMap: !isDev, plugins: [require("autoprefixer")] }
-          },
-          {
-            loader: require.resolve("sass-loader"),
-            options: { sourceMap: !isDev }
-          }
-        ]
-      },
-      images: {
-        test: /\.(png|svg|jpg|gif)$/,
-        loader: require.resolve("url-loader"),
-        options: { limit: 10000, name: "images/[name].[hash:7].[ext]" }
-      },
-      fonts: {
-        test: /\.(woff|woff2|eot|ttf|otf)$/,
-        loader: require.resolve("url-loader"),
-        options: { limit: 10000, name: "fonts/[name].[hash:7].[ext]" }
-      },
-      media: {
-        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
-        loader: require.resolve("url-loader"),
-        options: { limit: 10000, name: "media/[name].[hash:7].[ext]" }
-      }
-    },
-    plugins: {
-      miniCssExtract: new MiniCssExtractPlugin({
-        filename: isDev ? "[name].css" : "css/[name].[contenthash].css",
-        chunkFilename: isDev ? "[id].css" : "css/[id].[chunkhash].css"
-      }),
-      friendlyErrors: new FriendlyErrorsWebpackPlugin(),
-      define: new webpack.DefinePlugin({
-        "process.env": isDev
-          ? getFile("./env.development.ts")
-          : getFile("./env.production.ts")
-      }),
-      html: new HtmlWebpackPlugin({
-        filename: "index.html",
-        template: resolveHtmlTemplate(),
-        inject: true,
-        minify: isDev
-          ? false
-          : {
-              removeComments: true,
-              collapseWhitespace: true,
-              removeAttributeQuotes: true
-            }
-      }),
-      clean: new CleanWebpackPlugin(),
-      hmr: new webpack.HotModuleReplacementPlugin(),
-      webpackbar: new WebpackBar({
-        name: "TypePack"
-      }),
-      analyze: new BundleAnalyzerPlugin(),
-      copyStatic: new CopyWebpackPlugin([
-        {
-          from: join(rootPath, "static"),
-          to: paths.outputFolder,
-          ignore: [".*"]
-        }
-      ])
-    }
-  };
-  const { rules, plugins }: UserConfig = {
-    ...allConfigs,
-    ...userConfig
-  };
-
-  const commonConfig = {
-    context,
-    mode: isDev ? "development" : "production",
-    devtool: isDev ? "cheap-module-eval-source-map" : "source-map",
-    entry:
-      isDev && !isBackEndConfig(userConfig.mode)
-        ? makeDevEntries(paths.entry, port)
-        : paths.entry,
-    optimization: isDev
-      ? {}
-      : {
-          removeAvailableModules: false,
-          removeEmptyChunks: false,
-          minimizer: [
-            new TerserPlugin({
-              cache: true,
-              parallel: true,
-              sourceMap: true
-            }),
-            new OptimizeCssAssetsPlugin({
-              cssProcessor: require("cssnano"),
-              cssProcessorOptions: { safe: true, map: { inline: false } },
-              cssProcessorPluginOptions: {
-                preset: [
-                  "default",
-                  {
-                    discardComments: {
-                      removeAll: true
-                    }
-                  }
-                ]
-              },
-              canPrint: true
-            })
-          ],
-          splitChunks: {
-            chunks: "all"
-          }
-        },
-    resolve: {
-      symlinks: false,
-      extensions: [".tsx", ".ts", ".js", ".jsx", ".json"],
-      modules: [
-        "node_modules",
-        resolveContext(context, "node_modules"),
-        resolveLocal("node_modules")
-      ],
-      alias: {
-        "@": paths.src
-      }
-    },
-    resolveLoader: {
-      modules: [
-        "node_modules",
-        resolveContext(context, "node_modules"),
-        resolveLocal("node_modules")
-      ]
-    },
-    module: {
-      rules: [rules.typescript, rules.babel]
-    },
-    plugins: [
-      plugins.friendlyErrors,
-      plugins.webpackbar,
-      plugins.clean,
-      plugins.define,
-      ...(process.env.BUNDLE_ANALYZE ? [plugins.analyze] : [])
-    ],
-    output: {
-      publicPath: "/",
-      filename: isDev ? "js/[name].js" : "js/[name].[chunkhash].js",
-      chunkFilename: isDev ? "js/[id].js" : "js/[id].[chunkhash].js",
-      path: paths.outputFolder,
-      libraryTarget: "umd",
-      pathinfo: false
-    }
-  };
-
-  const webAppConfig = webpackMerge(commonConfig, {
-    module: {
-      rules: [rules.html, rules.scss, rules.images, rules.fonts, rules.media]
-    },
-    plugins: [
-      plugins.html,
-      ...(isDev ? [plugins.hmr] : [plugins.miniCssExtract])
-    ]
-  });
-
-  const backEndConfig = webpackMerge(commonConfig, {
-    target: "node",
-    externals: [nodeExternals()],
-    output: {
-      filename: "index.js",
-      path: resolve("./dist"),
-      libraryTarget: "commonjs2"
-    }
-  });
-
-  let resultConfig: webpack.Configuration = webAppConfig;
-
-  if (isBackEndConfig(userConfig.mode)) {
-    resultConfig = backEndConfig;
+const root = resolve(process.cwd());
+const paths = {
+  root,
+  src: join(root, "./src"),
+  output: join(root, "dist"),
+  entry: {
+    main: join(root, "./src/index.ts")
   }
-
-  if (typeof userConfig.config === "function") {
-    userConfig.config(resultConfig);
-  }
-
-  if (isDebugging) {
-    console.log(JSON.stringify(resultConfig));
-  }
-
-  const smp = new SpeedMeasurePlugin({
-    disable: !process.env.SMP
-  });
-  return smp.wrap(resultConfig);
 };
 
-export default configuration;
+const extensions = [".tsx", ".ts", ".js", ".jsx", ".json"];
+
+const loaders = {
+  ts: {
+    loader: require.resolve("ts-loader"),
+    options: {
+      context: paths.root,
+      transpileOnly: true,
+      experimentalWatchApi: true
+    }
+  }
+};
+
+type ConfigBuilder = () => Configuration;
+
+const buildConfig: ConfigBuilder = () => {
+  return {
+    context: paths.root,
+    mode: "development",
+    devtool: "eval",
+    entry: paths.entry,
+    target: "node",
+    externals: [plugins.nodeExternals],
+    resolve: {
+      extensions
+    },
+    output: {
+      filename: "index.js",
+      path: paths.output,
+      libraryTarget: "commonjs2"
+    },
+    module: {
+      rules: [
+        {
+          oneOf: [
+            {
+              test: /\.tsx?$/,
+              use: [loaders.ts],
+              include: paths.src,
+              exclude: /(node_modules)/
+            }
+          ]
+        }
+      ]
+    },
+    plugins: [plugins.friendlyErrors, plugins.clean]
+  };
+};
+
+export default buildConfig;
