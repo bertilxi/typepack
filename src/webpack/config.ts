@@ -1,12 +1,20 @@
 import { Configuration } from "webpack";
-import { plugins } from "./plugins";
-import { store } from "../service/store";
+
 import { paths } from "../service/path";
-import { output, optimization, devtool, oneOfRules } from "./misc";
+import { store } from "../service/store";
+import { devtool, entry, oneOfRules, optimization, output } from "./misc";
+import { loadPlugins, plugins } from "./plugins";
 
 const extensions = [".tsx", ".ts", ".js", ".jsx", ".json"];
 
 type ConfigBuilder = () => Configuration;
+
+/*
+TODO: 
+- Add webpack.DefinePlugin or something like dotenv
+- Add CopyWebpackPlugin
+- Add BundleAnalyzerPlugin
+*/
 
 const buildConfig: ConfigBuilder = () => {
   const { env, mode, debug } = store.getState();
@@ -17,7 +25,7 @@ const buildConfig: ConfigBuilder = () => {
     context: paths.root,
     mode: isDev ? "development" : "production",
     devtool: devtool(),
-    entry: paths.entry,
+    entry: entry(),
     target: isNode ? "node" : "web",
     externals: isNode ? [plugins.nodeExternals()] : [],
     resolve: {
@@ -36,7 +44,7 @@ const buildConfig: ConfigBuilder = () => {
       plugins.webpackbar(),
       plugins.friendlyErrors(),
       plugins.clean(),
-      ...(isNode ? [plugins.nodemon()] : [])
+      ...loadPlugins()
     ]
   };
 

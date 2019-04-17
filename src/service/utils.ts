@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/camelcase */
-import { paths } from "./path";
-import { join } from "path";
 import { existsSync } from "fs";
+import { join } from "path";
+import { Entry } from "webpack";
+
+import { paths } from "./path";
 import { store } from "./store";
 
 declare const __webpack_require__;
@@ -20,4 +22,38 @@ export const loadUserConfig = () => {
   userConfig = userConfig.default || userConfig;
 
   store.setState(userConfig);
+};
+
+export const resolveHtmlTemplate = () => {
+  const { htmlTemplate } = store.getState();
+  const filePaths = htmlTemplate
+    ? [htmlTemplate]
+    : ["./src/index.html", "./assets/index.html", "./index.html"];
+
+  for (const file of filePaths) {
+    const path = join(paths.root, file);
+    if (existsSync(path)) {
+      return path;
+    }
+  }
+};
+
+export const makeDevEntry = (entry: string) => {
+  const { port } = store.getState();
+  return [
+    require.resolve("webpack-dev-server/client") + `?http://localhost:${port}`,
+    require.resolve("webpack/hot/dev-server"),
+    entry
+  ];
+};
+
+export const makeDevEntries = (entries: Entry) => {
+  Object.keys(entries).forEach(entryKey => {
+    const entry = entries[entryKey];
+    if (typeof entry !== "string") {
+      return;
+    }
+    entries[entryKey] = makeDevEntry(entry);
+  });
+  return entries;
 };

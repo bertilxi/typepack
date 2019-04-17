@@ -1,7 +1,9 @@
-import { paths } from "../service/path";
 import { Options, Output, RuleSetRule } from "webpack";
-import { plugins } from "./plugins";
+
+import { paths } from "../service/path";
 import { store } from "../service/store";
+import { makeDevEntries } from "../service/utils";
+import { plugins } from "./plugins";
 import { rules } from "./rules";
 
 export const devtool = (): Options.Devtool => {
@@ -79,4 +81,15 @@ export const oneOfRules = (): RuleSetRule[] => {
         rules.images,
         rules.media
       ];
+};
+
+export const entry = () => {
+  const { env, mode } = store.getState();
+  const isDev = env !== "production";
+  const isNode = mode && mode === "node";
+
+  if (!isNode && isDev) {
+    return makeDevEntries(paths.entry);
+  }
+  return paths.entry;
 };
