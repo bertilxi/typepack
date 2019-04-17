@@ -5,6 +5,7 @@ import NodemonPlugin from "nodemon-webpack-plugin";
 import TerserPlugin from "terser-webpack-plugin";
 import { join } from "path";
 import { paths } from "../service/path";
+import WebpackBar from "webpackbar";
 
 export const plugins = {
   nodeExternals,
@@ -15,5 +16,10 @@ export const plugins = {
       script: join(paths.root, "./dist/index.js"),
       watch: join(paths.root, "./dist/**/*")
     }),
-  terser: options => new TerserPlugin(options)
+  terser: options => new TerserPlugin(options),
+  webpackbar: () =>
+    new WebpackBar({
+      name: "Typepack",
+      color: "#0052cc"
+    })
 };

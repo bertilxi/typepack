@@ -22,20 +22,30 @@
   },
   "scripts": {
     "prebuild": "rimraf ./dist",
-    "build": "tsc"
+    "build": "ts-node ./src/index.ts build",
+    "lint": "eslint './src/**/*.ts'",
+    "lint:fix": "eslint './src/**/*.ts' --fix"
   },
   "dependencies": {
+    "autoprefixer": "^9.5.1",
     "clean-webpack-plugin": "^2.0.1",
+    "css-loader": "^2.1.1",
     "friendly-errors-webpack-plugin": "^1.7.0",
+    "html-loader": "^0.5.5",
+    "mini-css-extract-plugin": "^0.6.0",
     "nodemon-webpack-plugin": "^4.0.8",
+    "postcss-loader": "^3.0.0",
     "sade": "^1.4.2",
+    "style-loader": "^0.23.1",
     "terser-webpack-plugin": "^1.2.3",
     "ts-loader": "^5.3.3",
-    "ts-node": "^8.0.3",
+    "ts-node": "^8.1.0",
     "typescript": "^3.4.3",
+    "url-loader": "^1.1.2",
     "webpack": "^4.30.0",
     "webpack-dev-server": "^3.3.1",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "webpackbar": "^3.1.5"
   },
   "devDependencies": {
     "@types/node": "^11.13.4",

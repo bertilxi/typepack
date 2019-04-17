@@ -25,6 +25,11 @@ export const bootstrap = (command: (...args: any[]) => void) => (
     }
   });
   loadUserConfig();
-  console.log(store.getState());
+
+  const state = store.getState();
+  if (state.debug) {
+    console.log(store.getState());
+  }
+
   command(...args);
 };

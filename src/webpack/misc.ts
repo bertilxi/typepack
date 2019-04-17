@@ -1,20 +1,44 @@
 import { paths } from "../service/path";
-import { Options, Output } from "webpack";
+import { Options, Output, RuleSetRule } from "webpack";
 import { plugins } from "./plugins";
 import { store } from "../service/store";
+import { rules } from "./rules";
 
-export const output = (isNode: boolean): Output => {
+export const devtool = (): Options.Devtool => {
+  const { env, sourceMaps } = store.getState();
+  const isDev = env !== "production";
+
+  return sourceMaps
+    ? isDev
+      ? "cheap-module-eval-source-map"
+      : "source-map"
+    : false;
+};
+
+export const output = (): Output => {
+  const { env, mode } = store.getState();
+  const isDev = env !== "production";
+  const isNode = mode && mode === "node";
+
   return isNode
     ? {
         filename: "index.js",
         path: paths.output,
         libraryTarget: "commonjs2"
       }
-    : {};
+    : {
+        publicPath: "/",
+        filename: isDev ? "js/[name].js" : "js/[name].[chunkhash].js",
+        chunkFilename: isDev ? "js/[id].js" : "js/[id].[chunkhash].js",
+        path: paths.output,
+        libraryTarget: "umd",
+        pathinfo: false
+      };
 };
 
-export const optimization = (isDev: boolean): Options.Optimization => {
-  const { sourceMaps } = store.getState();
+export const optimization = (): Options.Optimization => {
+  const { env, sourceMaps } = store.getState();
+  const isDev = env !== "production";
 
   return isDev
     ? {}
@@ -39,4 +63,20 @@ export const optimization = (isDev: boolean): Options.Optimization => {
           chunks: "all"
         }
       };
+};
+
+export const oneOfRules = (): RuleSetRule[] => {
+  const { mode } = store.getState();
+  const isNode = mode && mode === "node";
+
+  return isNode
+    ? [rules.ts]
+    : [
+        rules.ts,
+        rules.html,
+        rules.styles,
+        rules.fonts,
+        rules.images,
+        rules.media
+      ];
 };

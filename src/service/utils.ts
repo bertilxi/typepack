@@ -6,13 +6,13 @@ import { store } from "./store";
 
 declare const __webpack_require__;
 declare const __non_webpack_require__;
-export const dinamycRequire =
+export const dynamicRequire =
   typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
 
 export const getUserConfig = () => {
   const userConfigPath = join(paths.root, "./typepack.ts");
   const exist = existsSync(userConfigPath);
-  return exist ? dinamycRequire(userConfigPath) : {};
+  return exist ? dynamicRequire(userConfigPath) : {};
 };
 
 export const loadUserConfig = () => {
